@@ -1,0 +1,103 @@
+---
+# handlers file for common
+
+# handlers for hooks folders on tfm-app hosts
+# - name: create hooks folders
+#   command: >
+    
+#     # foreman hooks config folder, mostly file containing shellvar
+#     # each files must be chmod 0600 to store secrets
+
+#     mkdir -p /etc/foreman/hooks
+#     chown foreman:foreman /etc/foreman/hooks
+#     chmod 0750 /etc/foreman/hooks
+
+#     ## foreman hooks scripts folders
+#     mkdir -p /usr/share/foreman/config/hooks
+#     cd $_
+#     cp /usr/share/foreman/vendor/ruby/2.5.0/gems/foreman_hooks-0.3.17/examples/bash/log.sh .
+#     cp /usr/share/foreman/vendor/ruby/2.5.0/gems/foreman_hooks-0.3.17/examples/bash/hook_functions.sh .
+
+#     ## foreman-rake hooks:events[host/managed]
+#     # hooks host/managed
+#     object=host/managed
+#     for event in {create,destroy,postcreate,postupdate,update,after_build,before_provision,before_create,before_destroy,after_create,after_destroy,after_provision}; do 
+#     mkdir -p $object/$event
+#     ln -s /usr/share/foreman/config/hooks/log.sh /usr/share/foreman/config/hooks/$object/$event/log.sh
+#     ln -s /usr/share/foreman/config/hooks/hook_functions.sh /usr/share/foreman/config/hooks/$object/$event/hook_functions.sh
+#     done
+
+#     ## foreman-rake hooks:events[hostgroup]
+#     # hooks hostgroup
+#     object=hostgroup
+#     for event in {before_create,before_save,before_update,before_destroy,after_create,after_save,after_update,after_destroy}; do 
+#     mkdir -p $object/$event
+#     ln -s /usr/share/foreman/config/hooks/log.sh /usr/share/foreman/config/hooks/$object/$event/log.sh
+#     ln -s /usr/share/foreman/config/hooks/hook_functions.sh /usr/share/foreman/config/hooks/$object/$event/hook_functions.sh
+#     done
+
+#     ## foreman-rake hooks:events[nic/base]
+#     # hooks nic/base
+#     object=nic/base
+#     for event in {before_create,before_save,before_update,before_destroy,after_create,after_save,after_update,after_destroy}; do 
+#     mkdir -p $object/$event
+#     ln -s /usr/share/foreman/config/hooks/log.sh /usr/share/foreman/config/hooks/$object/$event/log.sh
+#     ln -s /usr/share/foreman/config/hooks/hook_functions.sh /usr/share/foreman/config/hooks/$object/$event/hook_functions.sh
+#     done
+
+#     ## foreman-rake hooks:events[nic/interface]
+#     # hooks nic/interface
+#     object=nic/interface
+#     for event in {before_create,before_save,before_update,before_destroy,after_create,after_save,after_update,after_destroy}; do 
+#     mkdir -p $object/$event
+#     ln -s /usr/share/foreman/config/hooks/log.sh /usr/share/foreman/config/hooks/$object/$event/log.sh
+#     ln -s /usr/share/foreman/config/hooks/hook_functions.sh /usr/share/foreman/config/hooks/$object/$event/hook_functions.sh
+#     done
+
+#     ## foreman-rake hooks:events[subnet]
+#     # hooks subnet
+#     object=subnet
+#     for event in {before_create,before_save,before_update,before_destroy,after_create,after_save,after_update,after_destroy}; do 
+#     mkdir -p $object/$event
+#     ln -s /usr/share/foreman/config/hooks/log.sh /usr/share/foreman/config/hooks/$object/$event/log.sh
+#     ln -s /usr/share/foreman/config/hooks/hook_functions.sh /usr/share/foreman/config/hooks/$object/$event/hook_functions.sh
+#     done
+
+#     ## foreman-rake hooks:events[subnet/ipv4]
+#     # hooks subnet/ipv4
+#     object=subnet/ipv4
+#     for event in {before_create,before_save,before_update,before_destroy,after_create,after_save,after_update,after_destroy}; do 
+#     mkdir -p $object/$event
+#     ln -s /usr/share/foreman/config/hooks/log.sh /usr/share/foreman/config/hooks/$object/$event/log.sh
+#     ln -s /usr/share/foreman/config/hooks/hook_functions.sh /usr/share/foreman/config/hooks/$object/$event/hook_functions.sh
+#     done
+
+#     ## foreman-rake hooks:events[subnet/ipv6]
+#     # hooks subnet/ipv6
+#     object=subnet/ipv6
+#     for event in {before_create,before_save,before_update,before_destroy,after_create,after_save,after_update,after_destroy}; do 
+#     mkdir -p $object/$event
+#     ln -s /usr/share/foreman/config/hooks/log.sh /usr/share/foreman/config/hooks/$object/$event/log.sh
+#     ln -s /usr/share/foreman/config/hooks/hook_functions.sh /usr/share/foreman/config/hooks/$object/$event/hook_functions.sh
+#     done
+
+#     ## foreman-rake hooks:events[permission]
+#     # hooks permission
+#     object=permission
+#     for event in {before_create,before_save,before_update,before_destroy,after_create,after_save,after_update,after_destroy}; do 
+#     mkdir -p $object/$event
+#     ln -s /usr/share/foreman/config/hooks/log.sh /usr/share/foreman/config/hooks/$object/$event/log.sh
+#     ln -s /usr/share/foreman/config/hooks/hook_functions.sh /usr/share/foreman/config/hooks/$object/$event/hook_functions.sh
+#     done
+
+#     ## foreman-rake hooks:events[user]
+#     # hooks user
+#     object=user
+#     for event in {before_create,before_save,before_update,before_destroy,after_create,after_save,after_update,after_destroy}; do 
+#     mkdir -p $object/$event
+#     ln -s /usr/share/foreman/config/hooks/log.sh /usr/share/foreman/config/hooks/$object/$event/log.sh
+#     ln -s /usr/share/foreman/config/hooks/hook_functions.sh /usr/share/foreman/config/hooks/$object/$event/hook_functions.sh
+#     done
+
+#     # # foreman-rake hooks:events[]
+#     # hooks

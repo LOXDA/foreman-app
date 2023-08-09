@@ -1,0 +1,3 @@
+---
+# defaults file for common
+ansible_os_family: Debian

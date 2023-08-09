@@ -1,0 +1,153 @@
+---
+
+- name: Disable thp
+  ansible.builtin.shell: |
+      echo never > /sys/kernel/mm/transparent_hugepage/enabled
+      echo never > /sys/kernel/mm/transparent_hugepage/defrag
+      echo 0 > /proc/sys/vm/compaction_proactiveness
+      
+# - name: Update CA Certificates
+#   ansible.builtin.apt:
+#     name: ca-certificates
+#     update_cache: yes
+
+- name: Install Puppet Repository
+  block:
+    - name: Add Public Key
+      ansible.builtin.apt_key:
+        url: http://mirror.lab.loxda.net/keyrings/puppetlabs/keys.d/puppetlabs-keyring.key
+        state: present
+    - name: Install Puppet Repo
+      ansible.builtin.apt_repository:
+        repo: deb http://mirror.lab.loxda.net/puppetlabs/ {{ ansible_distribution_release }} {{ puppet_version }}
+        state: present
+        filename: /etc/apt/sources.list.d/{{ puppet_version }}.list
+
+- name: Install Foreman Repository
+  block:
+    - name: Add Public Key
+      ansible.builtin.apt_key:
+        url: http://mirror.lab.loxda.net/keyrings/foreman/keys.d/foreman-keyring.key
+        state: present
+    - name: Install Foreman Repo
+      ansible.builtin.apt_repository:
+        repo: deb http://mirror.lab.loxda.net/foreman/ {{ ansible_distribution_release }} {{ foreman_version }}
+        state: present
+        filename: /etc/apt/sources.list.d/foreman.list
+    - name: Install Foreman Plugin Repo
+      ansible.builtin.apt_repository:
+        repo: deb http://mirror.lab.loxda.net/foreman/ plugins {{ foreman_version }}
+        state: present
+        filename: /etc/apt/sources.list.d/foreman_plugins.list
+
+- name: Download Foreman installer package
+  ansible.builtin.apt:
+    name: foreman-installer
+    force: yes
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Download python3-requests package
+  ansible.builtin.apt:
+    name: python3-requests
+    force: yes
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Install ruby-foreman-maintain
+  ansible.builtin.apt: 
+    name: ruby-foreman-maintain
+    force: yes 
+    update_cache: yes
+    cache_valid_time: 3600
+  when: (ansible_distribution == 'Debian' and ansible_distribution_version >= '11') and foreman_version != '3.3'
+
+- name: "Install postgresql-client-{{ postgresql_version }}"
+  ansible.builtin.apt: 
+    name: "postgresql-client-{{ postgresql_version }}"
+    force: yes 
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Install Puppet Agent
+  ansible.builtin.apt: 
+    name: puppet-agent 
+    force: yes 
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Bootstap Puppet Agent ssl
+  ansible.builtin.shell: |
+    /opt/puppetlabs/bin/puppet config set server {{ groups['tfm_puppet'][0] }} --section main
+    /opt/puppetlabs/bin/puppet ssl bootstrap --server {{ groups['tfm_puppet'][0] }}
+
+- name: Ensure group puppet exists
+  ansible.builtin.group:
+    name: puppet
+    state: present
+
+- name: Install and Configure Foreman with Puppet
+  block:
+
+    - name: Pre-Install set ulimit
+      ansible.builtin.shell: |
+        sysctl -w fs.file-max=1048576
+
+    - name: Install Foreman with Puppet
+      vars:
+        argv_start:
+          - foreman-installer
+          - --no-enable-foreman-proxy
+          - --puppet-server=false
+          - --enable-foreman
+          - --enable-puppet
+          - --puppet-group=root
+          - --foreman-db-manage={{ foreman_db_manage }}
+          - --foreman-db-database={{ foreman_db_database }}
+          - --foreman-db-host={{ groups['tfm_db'][0] }}
+          - --foreman-db-username={{ foreman_db_username }}
+          - --foreman-db-password={{ foreman_db_password }}
+          - --foreman-initial-admin-username={{ foreman_admin_username }}
+          - --foreman-initial-admin-password={{ foreman_admin_password }}
+          - --foreman-initial-organization={{ initial_organization }}
+          - --foreman-initial-location={{ initial_location }}
+      ansible.builtin.shell: |
+        ulimit -Hn 1048576 ; \
+        ulimit -Sn 1048576 ; \
+        FOREMAN_APIPIE_LANGS=en \
+        {{ argv_start | join(' ') }} \
+        {{ foreman_cmd_options | join(' ') }}
+      args:
+        executable: /bin/bash
+
+    - name: Post-Install with external database (1/2)
+      ansible.builtin.shell: |
+        FOREMAN_RAILS_CACHE_STORE_URLS='redis://127.0.0.1:6379/0' \
+        foreman-rake db:migrate
+
+    - name: Post-Install with external database (2/2)
+      ansible.builtin.shell: |
+        FOREMAN_RAILS_CACHE_STORE_URLS='redis://127.0.0.1:6379/0' \
+        foreman-rake db:seed
+
+    - name: Post-Install with external database (3/3)
+      ansible.builtin.shell: |
+        ulimit -Hn 1048576 ; \
+        ulimit -Sn 1048576 ; \
+        FOREMAN_RAILS_CACHE_STORE_URLS='redis://127.0.0.1:6379/0' \
+        FOREMAN_APIPIE_LANGS=en \
+        foreman-rake apipie:cache:index
+
+- name: Bootstap Puppet Agent ssl
+  ansible.builtin.shell: |
+    /opt/puppetlabs/bin/puppet config set server {{ groups['tfm_puppet'][0] }} --section main
+
+- name: Restart service puppet
+  ansible.builtin.service:
+    name: puppet
+    state: restarted
+
+# export KEYCLOAK_URL=https://keycloak.example.com
+# export KEYCLOAK_REALM=ssl-realm
+# export KEYCLOAK_USER=admin
+# keycloak-httpd-client-install --app-name foreman-openidc --keycloak-server-url $KEYCLOAK_URL --keycloak-admin-username $KEYCLOAK_USER --keycloak-realm $KEYCLOAK_REALM --keycloak-admin-realm master --keycloak-auth-role root-admin -t openidc -l /users/extlogin -d
