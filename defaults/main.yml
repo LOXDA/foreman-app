@@ -4,11 +4,6 @@ foreman_version: 3.7
 puppet_version: puppet7
 disable_puppet: false
 
-# grub_timeout: 2
-# grub_options:
-#   - option: transparent_hugepage
-#     value: never
-
 vault_foreman_admin_username: ''
 vault_foreman_admin_password: ''
 vault_foreman_db_username: ''
