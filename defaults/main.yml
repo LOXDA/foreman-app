@@ -1,3 +1,90 @@
 ---
 # defaults file for common
-ansible_os_family: Debian
+foreman_version: 3.7
+puppet_version: puppet7
+disable_puppet: false
+
+# grub_timeout: 2
+# grub_options:
+#   - option: transparent_hugepage
+#     value: never
+
+vault_foreman_admin_username: ''
+vault_foreman_admin_password: ''
+vault_foreman_db_username: ''
+vault_foreman_db_password: ''
+
+# install options
+foreman_cmd_options: []
+
+# General config.
+foreman_puppet_server: "{{ groups['tfm_puppet'][0] }}"
+
+foreman_admin_username: "{{ vault_foreman_admin_username }}"
+foreman_admin_password: "{{ vault_foreman_admin_password }}"
+
+# db manage true for All-in-one setup, false if you have a separate db
+foreman_db_manage: 'false'
+foreman_db_host: "{{ groups['tfm_db'][0] }}"
+foreman_db_database: foreman
+foreman_db_username: "{{ vault_foreman_db_username }}"
+foreman_db_password: "{{ vault_foreman_db_password }}"
+
+# Plugins/Capability. []
+foreman_plugins: 
+  - remote-execution
+  - templates
+  - ansible
+  - puppet
+  - tasks
+  - discovery
+  # - hooks
+  # - rescue
+  # - expire-hosts
+  # - dhcp-browser
+  # - netbox
+  # - proxmox
+  # - snapshot-management
+
+foreman_proxy_plugins: []
+
+foreman_compute:
+  - vmware
+
+# Options. {}
+foreman_options:
+  - foreman-url: 'https://{{ inventory_hostname }}'
+  - hsts-enabled: 'false'
+  - servername: "{{ inventory_hostname }}"
+  - telemetry-prometheus-enabled: 'true'
+  - rails-cache-store: 'type:redis'
+  - dynflow-manage-services: 'true'
+  - dynflow-orchestrator-ensure: 'present'
+  - dynflow-worker-concurrency: '15'
+  - dynflow-worker-instances: '1'
+  # - dynflow-redis-url: 'redis://localhost:6379/0'
+  - foreman-service-puma-threads-min: '4'
+  - foreman-service-puma-threads-max: '4'
+  - foreman-service-puma-workers: '1'
+  # - keycloak: 'false'
+  # - keycloak-app-name: 'foreman-openidc'
+  # - keycloak-realm: 'ssl-realm'
+  # When enabled still relies on manually running keycloak-httpd-client-install below
+
+# for references:
+# export KEYCLOAK_URL=https://keycloak.example.com
+# export KEYCLOAK_REALM=ssl-realm
+# export KEYCLOAK_USER=admin
+# keycloak-httpd-client-install --app-name foreman-openidc --keycloak-server-url $KEYCLOAK_URL --keycloak-admin-username $KEYCLOAK_USER --keycloak-realm $KEYCLOAK_REALM --keycloak-admin-realm master --keycloak-auth-role root-admin -t openidc -l /users/extlogin -d
+
+foreman_plugin_options: {}
+  # - tasks-automatic-cleanup: 'true'
+  # - tasks-backup: 'true'
+  # - tasks-cron-line: '45 18 * * *'
+  # - cors-domains: "['https://lisa.loxda.net']"
+
+foreman_proxy_options: {}
+foreman_proxy_plugin_options: {}
+foreman_compute_options: {}
+puppet_options: {}
+puppet_server_options: {}

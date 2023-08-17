@@ -1,38 +1,61 @@
-Role Name
+ansible-role-foreman-app
 =========
 
-A brief description of the role goes here.
+Ansible role to deploy foreman app (or All-in-One) (theforeman.org)
 
 Requirements
 ------------
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+It is designed to be include as a submodule to a project with its siblings :
+
+* `ansible-role-foreman-db`
+* `ansible-role-foreman-puppet`
+* `ansible-role-foreman-proxy`
+* `ansible-role-foreman-app` (this one)
+* `ansible-role-foreman-custom`
+
+`ansible-role-mirror` should help you get started with mirroring needed repositories.
 
 Role Variables
 --------------
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
-
-Dependencies
-------------
-
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+The role needs some vars (default/main.yml)
+The vars are self-explanatory, to look for answer one could use : foreman-installer --help
+All vars are combined in `tasks/Setup_Options.yml` ( -vv is your friend )
 
 Example Playbook
 ----------------
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
+```
+- hosts: tfm_app
+  gather_facts: true
+  roles:
+    - role: foreman-app
+```
 
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
+```
+# fetch oauth_consumer_* info
+- hosts: "{{ groups['tfm_app'][0] }}"
+  gather_facts: true
+  tasks:
+    - name: Fetch settings.yaml
+      slurp:
+        src: /etc/foreman/settings.yaml
+      register: settingsyaml
+    - name: Collect oauth_consumer_key
+      set_fact:
+        oauth_consumer_key: "{{ settingsyaml['content'] | b64decode | regex_findall(':oauth_consumer_key: (.+)') | first }}"
+    - name: Collect oauth_consumer_secret
+      set_fact:
+        oauth_consumer_secret: "{{ settingsyaml['content'] | b64decode | regex_findall(':oauth_consumer_secret: (.+)') | first }}"
+```
 
 License
 -------
 
-BSD
+CC-BY-4.0
 
 Author Information
 ------------------
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+Thomas Basset -- hobbyist sysadm <tomm+code@loxda.net>
