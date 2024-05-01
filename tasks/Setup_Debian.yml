@@ -122,19 +122,19 @@
 
     - name: Post-Install with external database (1/2)
       ansible.builtin.shell: |
-        FOREMAN_RAILS_CACHE_STORE_URLS='redis://127.0.0.1:6379/0' \
+        FOREMAN_RAILS_CACHE_STORE_URLS='redis://127.0.0.1:6379/4' \
         foreman-rake db:migrate
 
     - name: Post-Install with external database (2/2)
       ansible.builtin.shell: |
-        FOREMAN_RAILS_CACHE_STORE_URLS='redis://127.0.0.1:6379/0' \
+        FOREMAN_RAILS_CACHE_STORE_URLS='redis://127.0.0.1:6379/4' \
         foreman-rake db:seed
 
     - name: Post-Install with external database (3/3)
       ansible.builtin.shell: |
         ulimit -Hn 1048576 ; \
         ulimit -Sn 1048576 ; \
-        FOREMAN_RAILS_CACHE_STORE_URLS='redis://127.0.0.1:6379/0' \
+        FOREMAN_RAILS_CACHE_STORE_URLS='redis://127.0.0.1:6379/4' \
         FOREMAN_APIPIE_LANGS=en \
         foreman-rake apipie:cache:index
 
