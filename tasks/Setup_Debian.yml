@@ -145,7 +145,7 @@
     server_url: "{{ foreman_url_app }}"
     validate_certs: false
     name: "trusted_hosts"
-    value: "{{ groups['tfm_puppet'][0] }}"
+    value: "[ { '{{ groups[tfm_puppet][0] }}' } ]"
 
 - name: Bootstap Puppet Agent ssl
   ansible.builtin.shell: |
