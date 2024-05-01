@@ -138,6 +138,14 @@
         FOREMAN_APIPIE_LANGS=en \
         foreman-rake apipie:cache:index
 
+- name: "Set Setting > Authentication > Trusted hosts"
+  theforeman.foreman.setting:
+    username: "{{ foreman_admin_username }}"
+    password: "{{ foreman_admin_password }}"
+    server_url: "{{ foreman_url_app }}"
+    name: "trusted_hosts"
+    value: "{{ groups['tfm_puppet'][0] }}"
+
 - name: Bootstap Puppet Agent ssl
   ansible.builtin.shell: |
     /opt/puppetlabs/bin/puppet config set server {{ groups['tfm_puppet'][0] }} --section main
