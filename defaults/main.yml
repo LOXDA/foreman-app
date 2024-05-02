@@ -4,11 +4,6 @@ foreman_version: 3.7
 puppet_version: puppet7
 disable_puppet: false
 
-vault_foreman_admin_username: ''
-vault_foreman_admin_password: ''
-vault_foreman_db_username: ''
-vault_foreman_db_password: ''
-
 # install options
 foreman_cmd_options: []
 
