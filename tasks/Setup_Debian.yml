@@ -17,7 +17,7 @@
     content: "{{ item.filecontent }}"
     owner: root
     group: root
-    mode: 0640
+    mode: 0644
   loop: "{{ vault_ca_certs_files }}"
 
 - name: Update ca-certificates
