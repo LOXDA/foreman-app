@@ -31,31 +31,31 @@
 - name: Install Puppet Repository
   block:
     - name: Add Public Key
-      apt_key:
-        url: https://apt.puppetlabs.com/keyring.gpg
+      ansible.builtin.apt_key:
+        url: "{{ puppet_repo_key}}"
         state: present
     - name: Install Puppet Repo
-      apt_repository:
-        repo: deb https://apt.puppetlabs.com/ {{ ansible_distribution_release }} {{ puppet_version }}
+      ansible.builtin.apt_repository:
+        repo: "{{ puppet_repo_url }}"
         state: present
-        filename: /etc/apt/sources.list.d/{{ puppet_version }}.list
+        filename: '{{ puppet_version }}'
 
 - name: Install Foreman Repository
   block:
     - name: Add Public Key
-      apt_key:
-        url: https://deb.theforeman.org/foreman.asc
+      ansible.builtin.apt_key:
+        url: "{{ foreman_repo_key }}"
         state: present
     - name: Install Foreman Repo
-      apt_repository:
-        repo: deb https://deb.theforeman.org/ {{ ansible_distribution_release }} {{ foreman_version }}
+      ansible.builtin.apt_repository:
+        repo: "{{ foreman_repo_url }}"
         state: present
-        filename: /etc/apt/sources.list.d/foreman.list
+        filename: 'foreman'
     - name: Install Foreman Plugin Repo
-      apt_repository:
-        repo: deb https://deb.theforeman.org/ plugins {{ foreman_version }}
+      ansible.builtin.apt_repository:
+        repo: 
         state: present
-        filename: /etc/apt/sources.list.d/foreman_plugins.list
+        filename: 'foreman_plugins'
 
 - name: Download Foreman installer package
   ansible.builtin.apt:
@@ -174,7 +174,60 @@
     name: puppet
     state: restarted
 
+# git clone https://github.com/jdennis/keycloak-httpd-client-install.git
+# apt-get install python3-venv
+# python3 -m venv keycloak-httpd-client
+# cd keycloak-httpd-client-install/
+# ../keycloak-httpd-client/bin/pip install .
+# ../keycloak-httpd-client/bin/pip install jinja2 six oauthlib requests requests_oauthlib lxml
+# ../keycloak-httpd-client/bin/keycloak-httpd-client-install
+
+# starting keycloak >=18 you have to fix the endpoint url in keycloak-httpd-client-install/keycloak_httpd_client/keycloak_rest.py
+# by removing the /auth url prefix, or adapting to subpath settings
+
+# export REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
 # export KEYCLOAK_URL=https://keycloak.example.com
 # export KEYCLOAK_REALM=ssl-realm
 # export KEYCLOAK_USER=admin
-# keycloak-httpd-client-install --app-name foreman-openidc --keycloak-server-url $KEYCLOAK_URL --keycloak-admin-username $KEYCLOAK_USER --keycloak-realm $KEYCLOAK_REALM --keycloak-admin-realm master --keycloak-auth-role root-admin -t openidc -l /users/extlogin -d
+# ../keycloak-httpd-client/bin/keycloak-httpd-client-install --app-name foreman-openidc \
+# --keycloak-server-url $KEYCLOAK_URL \
+# --keycloak-admin-username $KEYCLOAK_USER \
+# --keycloak-realm $KEYCLOAK_REALM \
+# --keycloak-admin-realm master \
+# --keycloak-auth-role root-admin \
+# -t openidc -l /users/extlogin -d
+
+# foreman-installer --foreman-keycloak true \
+# --foreman-keycloak-app-name "foreman-openidc" \
+# --foreman-keycloak-realm $KEYCLOAK_REALM
+
+# apache proxy vhost
+# with a twist to support both keycloak v<17 and v>17
+# <IfModule mod_ssl.c>
+# <VirtualHost *:443>
+#         ServerName sso.opn.lab
+#         ServerAdmin root@localhost
+#         DocumentRoot /var/www/html
+#         HostnameLookups Off
+#         UseCanonicalName Off
+#         SSLEngine on
+#         SSLProxyEngine On
+#         ProxyRequests Off
+#         ProxyPreserveHost On
+#         RequestHeader set X-Forwarded-Proto "https"
+#         RequestHeader set X-Forwarded-Port "443"
+#         RewriteEngine On
+#         RewriteRule "^/auth/(.+)" "https://sso.opn.lab/$1" [R,L]
+#         ProxyPass / https://sso.opn.lab:8443/
+#         ProxyPassReverse / https://sso.opn.lab:8443/
+#         ErrorLog /var/log/apache2/errors_sso.opn.lab.log
+#         LogLevel warn
+#         CustomLog /var/log/apache2/access_sso.opn.lab.log combined
+#         ServerSignature Off
+# SSLCertificateFile /var/lib/puppet/ssl/certs/sso.opn.lab.pem
+# SSLCertificateKeyFile /var/lib/puppet/ssl/private_keys/sso.opn.lab.pem
+# </VirtualHost>
+# </IfModule>
+
+# fix ruby Resquest not using system ca bundle, not great, not terrible
+# sed -i 's/:verify_ssl => true/:verify_ssl => false/' /usr/share/foreman/app/services/oidc_jwt_validate.rb

@@ -20,6 +20,14 @@ foreman_db_database: foreman
 foreman_db_username: "{{ vault_foreman_db_username }}"
 foreman_db_password: "{{ vault_foreman_db_password }}"
 
+puppet_repo_key: https://apt.puppetlabs.com/keyring.gpg
+puppet_repo_url: deb https://apt.puppetlabs.com/ {{ ansible_distribution_release }} {{ puppet_version }}
+foreman_repo_key: https://deb.theforeman.org/foreman.asc
+foreman_repo_url: deb https://deb.theforeman.org/ {{ ansible_distribution_release }} {{ foreman_version }}
+plugins_repo_key: https://deb.theforeman.org/foreman.asc
+plugins_repo_url: deb https://deb.theforeman.org/ plugins {{ foreman_version }}
+
+
 # Plugins/Capability. []
 foreman_plugins: 
   - remote-execution
