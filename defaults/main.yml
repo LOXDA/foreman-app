@@ -21,7 +21,7 @@ foreman_db_username: "{{ vault_foreman_db_username }}"
 foreman_db_password: "{{ vault_foreman_db_password }}"
 
 # Plugins/Capability. []
-foreman_plugins: 
+foreman_plugins:
   - remote-execution
   - templates
   - ansible

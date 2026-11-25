@@ -5,11 +5,11 @@
 #       echo never > /sys/kernel/mm/transparent_hugepage/enabled
 #       echo never > /sys/kernel/mm/transparent_hugepage/defrag
 #       echo 0 > /proc/sys/vm/compaction_proactiveness
-      
+
 - name: Update CA Certificates
   ansible.builtin.apt:
     name: ca-certificates
-    update_cache: yes
+    update_cache: true
 
 - name: Creating certs file in /usr/local/share/ca-certificates
   ansible.builtin.copy:
@@ -17,7 +17,7 @@
     content: "{{ item.filecontent }}"
     owner: root
     group: root
-    mode: 0644
+    mode: "0644"
   loop: "{{ vault_ca_certs_files }}"
 
 - name: Update ca-certificates
@@ -25,18 +25,18 @@
     update-ca-certificates
 
 - name: Install gpg
-  apt:
+  ansibe.builtin.apt:
     name: gpg
-    update_cache: yes
+    update_cache: true
 
 - name: Install Puppet Repository
   block:
     - name: Add Public Key
-      apt_key:
+      ansibe.builtin.apt_key:
         url: https://apt.puppetlabs.com/keyring.gpg
         state: present
     - name: Install Puppet Repo
-      apt_repository:
+      ansibe.builtin.apt_repository:
         repo: deb https://apt.puppetlabs.com/ {{ ansible_distribution_release }} {{ puppet_version }}
         state: present
         filename: /etc/apt/sources.list.d/{{ puppet_version }}.list
@@ -44,16 +44,16 @@
 - name: Install Foreman Repository
   block:
     - name: Add Public Key
-      apt_key:
+      ansibe.builtin.apt_key:
         url: https://deb.theforeman.org/foreman.asc
         state: present
     - name: Install Foreman Repo
-      apt_repository:
+      ansibe.builtin.apt_repository:
         repo: deb https://deb.theforeman.org/ {{ ansible_distribution_release }} {{ foreman_version }}
         state: present
         filename: /etc/apt/sources.list.d/foreman.list
     - name: Install Foreman Plugin Repo
-      apt_repository:
+      ansibe.builtin.apt_repository:
         repo: deb https://deb.theforeman.org/ plugins {{ foreman_version }}
         state: present
         filename: /etc/apt/sources.list.d/foreman_plugins.list
@@ -61,37 +61,37 @@
 - name: Download Foreman installer package
   ansible.builtin.apt:
     name: foreman-installer
-    force: yes
-    update_cache: yes
+    force: true
+    update_cache: true
     cache_valid_time: 3600
 
 - name: Download python3-requests package
   ansible.builtin.apt:
     name: python3-requests
-    force: yes
-    update_cache: yes
+    force: true
+    update_cache: true
     cache_valid_time: 3600
 
 - name: Install ruby-foreman-maintain
-  ansible.builtin.apt: 
+  ansible.builtin.apt:
     name: ruby-foreman-maintain
-    force: yes 
-    update_cache: yes
+    force: true 
+    update_cache: true
     cache_valid_time: 3600
   when: (ansible_distribution == 'Debian' and ansible_distribution_version >= '11') and foreman_version != '3.3'
 
 - name: "Install postgresql-client-{{ postgresql_version }}"
-  ansible.builtin.apt: 
+  ansible.builtin.apt:
     name: "postgresql-client-{{ postgresql_version }}"
-    force: yes 
-    update_cache: yes
+    force: true 
+    update_cache: true
     cache_valid_time: 3600
 
 - name: Install Puppet Agent
-  ansible.builtin.apt: 
+  ansible.builtin.apt:
     name: puppet-agent 
-    force: yes 
-    update_cache: yes
+    force: true 
+    update_cache: true
     cache_valid_time: 3600
 
 - name: Bootstap Puppet Agent ssl
@@ -108,7 +108,7 @@
   block:
 
     - name: Pre-Install set ulimit
-      ansible.builtin.shell: |
+      ansible.builtin.shell:
         sysctl -w fs.file-max=1048576
 
     - name: Install Foreman with Puppet

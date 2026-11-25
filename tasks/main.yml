@@ -1,10 +1,12 @@
 ---
 # Include variables and define needed variables.
 - name: Include OS-specific variables.
-  include_vars: "{{ ansible_os_family }}.yml"
+  ansible.builtin.include_vars: "{{ ansible_os_family }}.yml"
 
 # Setup/options.
-- include_tasks: "Setup_Options.yml"
+- name: Include deployment Options
+  ansible.builtin.include_tasks: "Setup_Options.yml"
 
 # Setup/install tasks.
-- include_tasks: "Setup_{{ ansible_os_family }}.yml"
+- name: Include deployment tasks
+  ansible.builtin.include_tasks: "Setup_{{ ansible_os_family }}.yml"
